@@ -1,11 +1,11 @@
 const int buzzer_pin = 8;
-const int echo_pin_1 = 9;
-const int trigger_pin_1 = 10;
+const int echo_pin_1 = 13;
+const int trigger_pin_1 = 12;
 
-const int drive_pin_left = 7;
 const int drive_pin_right = 4;
-const int drive_pin_2 = 5;
-const int drive_pin_3 = 6;
+const int reverse_pin_right = 5;
+const int reverse_pin_left = 6;
+const int drive_pin_left = 7;
 
 long duration;
 float distance;
@@ -17,8 +17,8 @@ void setup() {
 
   pinMode(drive_pin_right, OUTPUT);
   pinMode(drive_pin_left, OUTPUT);
-  pinMode(drive_pin_2, OUTPUT);
-  pinMode(drive_pin_3, OUTPUT);
+  pinMode(reverse_pin_right, OUTPUT);
+  pinMode(reverse_pin_left, OUTPUT);
 
   Serial.begin(9600);
 }
@@ -33,35 +33,37 @@ void loop() {
   digitalWrite(trigger_pin_1, LOW);
 
   duration = pulseIn(echo_pin_1, HIGH);
+  distance = duration * 0.034 / 2;
 
-  if (duration > 3000) {
-    Serial.println('Afstant te groot');
-  } else {
-    distance = duration * 0.034 / 2;
+  Serial.print("Afstand: ");
+  Serial.print(distance);
+  Serial.println(" cm");
 
-    Serial.print("Afstand: ");
-    Serial.print(distance);
-    Serial.println(" cm");
+ 
+  // ===== DRIVING LOGIC =====
+  if (distance > 25) {
+    driveForward();
   }
-
-  turnLeft();m
-  delay(2000);
-  turnRight();
-  delay(2000);
-  driveForward();
-  delay(2000);
-  stopDriving();
-  delay(10000);
-}
+  else {
+    stopDriving();
+    delay(100);
+    if (random(0, 2) == 0) {
+…}
 
 void turnLeft() {
-  digitalWrite(drive_pin_right, HIGH);
-  digitalWrite(drive_pin_left, LOW);
+  digitalWrite(reverse_pin_right, HIGH);
+  digitalWrite(drive_pin_right, LOW);
+  
+  digitalWrite(reverse_pin_left, LOW);
+  digitalWrite(drive_pin_left, HIGH);
 }
 
 void turnRight() {
-  digitalWrite(drive_pin_right, LOW);
-  digitalWrite(drive_pin_left, HIGH);
+  digitalWrite(reverse_pin_right, LOW);
+  digitalWrite(drive_pin_right, HIGH);
+  
+  digitalWrite(reverse_pin_left, HIGH);
+  digitalWrite(drive_pin_left, LOW);
 }
 
 void stopDriving() {
@@ -70,6 +72,17 @@ void stopDriving() {
 }
 
 void driveForward() {
+  digitalWrite(reverse_pin_right, LOW);
   digitalWrite(drive_pin_right, HIGH);
+
+  digitalWrite(reverse_pin_left, LOW);
   digitalWrite(drive_pin_left, HIGH);
+}
+
+void driveBackward() {
+  digitalWrite(reverse_pin_right, HIGH);
+  digitalWrite(drive_pin_right, LOW);
+
+  digitalWrite(reverse_pin_left, HIGH);
+  digitalWrite(drive_pin_left, LOW);
 }
